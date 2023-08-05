@@ -11,6 +11,8 @@ response = llm.predict_messages(message)
 print(response)
 
 '''
+
+
 import openai
 import os
 
@@ -28,6 +30,8 @@ def get_completion(prompt, model='gpt-3.5-turbo'):
     )
     return response.choices[0].message['content']
 
-respuesta = get_completion('¿Cual es la distacia entre el Sol y Jupiter?')
+respuesta = get_completion('¿Cual es la distancia que existe entre el sol y el ultimo planeta del sistema solar, y cual es el nombre de este?')
 
 print(respuesta)
+
+
