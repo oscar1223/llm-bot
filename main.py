@@ -1,4 +1,5 @@
-'''from langchain.llms import OpenAI
+'''
+from langchain.llms import OpenAI
 from langchain.schema import HumanMessage
 
 llm = OpenAI(openai_api_key='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')
@@ -9,7 +10,6 @@ message = [HumanMessage(contex=text)]
 
 response = llm.predict_messages(message)
 print(response)
-
 '''
 
 
@@ -30,7 +30,7 @@ def get_completion(prompt, model='gpt-3.5-turbo'):
     )
     return response.choices[0].message['content']
 
-respuesta = get_completion('¿Cual es la distancia que existe entre el sol y el ultimo planeta del sistema solar, y cual es el nombre de este?')
+respuesta = get_completion('¿Como puedo generar riqueza?')
 
 print(respuesta)
 
