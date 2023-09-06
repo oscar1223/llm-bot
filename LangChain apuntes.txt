@@ -1,0 +1,6 @@
+Prompts efectivos:
+- Define el proposito y el oenfoque de la conversación.
+- Usa lenguaje específico y relevante.
+- Evita los prompts abiertos o demasiado amplios.
+- Incluye detalles o contexto adicional para ayudar a ChatGPT a entender la pregunta.
+- Manten la conversación en el tema.
