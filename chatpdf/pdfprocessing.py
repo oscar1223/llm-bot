@@ -37,7 +37,7 @@ embeddings = OpenAIEmbeddings()
 docsearch = FAISS.from_texts(texts, embeddings)
 chain = load_qa_chain(OpenAI(), chain_type='stuff')
 
-query = 'Hazme un resumen del articulo de 10 lineas, omitiendo la informacion menos importante, y recalcando la muerte de Napoleon'
+query = '¿Por qué Napoleon murio en el exilio?'
 docs = docsearch.similarity_search(query)
 respuesta = chain.run(input_documents=docs, question=query)
 
