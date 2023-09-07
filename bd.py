@@ -7,6 +7,7 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
+
 def get_product_description():
     # Define la conexión a la base de datos (reemplaza 'sqlite:///tu_base_de_datos.db' por tu conexión real)
     engine = create_engine('sqlite:///tu_base_de_datos.db')

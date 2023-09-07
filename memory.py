@@ -41,7 +41,6 @@ respuesta2 = memory.load_memory_variables({})
 print(respuesta2)
 
 # Example of ConversationSummaryBufferMemory
-
 from langchain.memory import ConversationSummaryBufferMemory
 
 # create a long string
