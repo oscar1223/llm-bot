@@ -1,47 +1,52 @@
 from dotenv import load_dotenv, find_dotenv
-from langchain.agents import initialize_agent, AgentType, load_tools, tool
+from langchain import OpenAI
+from langchain.agents import AgentType
 from langchain.agents.agent_toolkits import create_python_agent
 from langchain.chat_models import ChatOpenAI
-from langchain.llms import OpenAI
+from langchain.tools import PythonREPLTool
+from langchain.python import PythonREPL
+
 import openai
 import os
-import datetime
 
-from langchain.tools import PythonREPLTool
+from langchain.utilities import PythonREPL
 
 # read local .env file
 _ = load_dotenv(find_dotenv())
 openai.api_key = os.environ['OPENAI_API_KEY']
 
-# Get the current date
-current_date = datetime.datetime.now().date()
-
-# Define the date after which the model should be set to "gpt-3.5-turbo"
-target_date = datetime.date(2024, 6, 12)
-
-# Set the model variable based on the current date
-if current_date > target_date:
-    llm_model = "gpt-3.5-turbo"
-else:
-    llm_model = "gpt-3.5-turbo-0301"
-
-llm = ChatOpenAI(temperature=0, model=llm_model)
-tools = load_tools(["PythonREPLTool"], llm=llm)
-
-converter_agent = initialize_agent(
-    llm=llm,
-    tools=tools,
-    agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
-    handle_parsing_errors=True,
-    verbose=True
-)
-
 #Definimos las rutas de carga y descarga.
 sql_ruta = ('./scripts-sql/procedure1.sql')
-py_ruta = ('./py-scripts/')
+py_ruta = ('./py-scripts/procedure1.py')
 
-response = converter_agent.run(f"""
-Tengo un script SQL en esta ruta {sql_ruta}. En ese script se realizan varias acciones sobre una base de datos. Necesito que entiendas las acciones que realiza el script sql, las transcribas a lenguaje python y crees un script en python con dichas acciones en esta ruta {py_ruta}. Llama al script final procedure1.py
-""")
+#Preparamos un buen prompt
+prompt = f'''
+Necesito un script en python el cual realice las mismas funciones que el script sql de esta ruta {sql_ruta}.\
+Debes leer el script sql y traducirlo a lenguaje python para que ambos scripts realicen los mismos procesos sobre la base de datos.\
+Despues debes escribir ese codigo python en el fichero de esta ruta {py_ruta}.
+'''
+
+#Creamos agente.
+'''
+agent_executor = create_python_agent(
+    llm=ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613"),
+    tool=PythonREPLTool(),
+    verbose=True,
+    agent_type=AgentType.OPENAI_FUNCTIONS,
+    agent_executor_kwargs={"handle_parsing_errors": True},
+)
+'''
+agent_executor = create_python_agent(
+    llm=OpenAI(temperature=0, max_tokens=1000),
+    tool=PythonREPLTool(),
+    verbose=True,
+    agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+)
+
+
+
+response = agent_executor.run(prompt)
+
+
 
 print(response)
