@@ -6,7 +6,7 @@ import langchain
 import re
 from langchain.schema import AgentAction, AgentFinish
 from typing import List, Union
-
+from langchain.memory import ConversationBufferWindowMemory
 from langchain import OpenAI, LLMChain
 from langchain.tools import DuckDuckGoSearchRun
 
@@ -18,10 +18,10 @@ from langchain.prompts import StringPromptTemplate
 _ = load_dotenv(find_dotenv())
 openai.api_key = os.environ['OPENAI_API_KEY']
 
-##################### CUSTOM AGENT #####################################
-# Bot Medico para resolver dudas sobre pacientes y sintomas.
-# Ejercicio para saber como crear un agente con memoria usando langchain.
-#
+##################### CUSTOM AGENT #######################################
+# Bot Medico para resolver dudas sobre pacientes y sintomas.             #
+# Ejercicio para saber como crear un agente con memoria usando langchain.#
+##########################################################################
 
 
 # Definimos las herramientas que el agente usará.
@@ -60,6 +60,9 @@ Final Answer : the final answer to the original input question
 
 Begin! Remember to answer as a compasionate medical professional when giving your final answer.
 
+Previous conversation history:
+{history}
+
 Question: {input}
 {agent_scratchpad}
 '''
@@ -84,12 +87,12 @@ class CustomPromptTemplate(StringPromptTemplate):
         kwargs['tool_names'] = ', '.join([tool.name for tool in self.tools])
         return self.template.format(**kwargs)
 
-prompt = CustomPromptTemplate(
+prompt_with_history = CustomPromptTemplate(
     template=template,
     tools=tools,
     # Omite las variables 'agents_scratchpad', 'tools' and 'tools_name' porque son generadas dinamicamente en la función superior.
     # Incluir las variables 'input' e 'intermediate_steps' porque son necesarias.
-    input_variables=['input', 'intermediate_steps']
+    input_variables=['input', 'intermediate_steps', 'history']
 )
 
 class CustomOutputParser(AgentOutputParser):
@@ -116,7 +119,7 @@ output_parser = CustomOutputParser()
 # Setup agent
 llm = OpenAI(temperature=0)
 # LLMChain consiste en LLM y un prompt
-llm_chain = LLMChain(llm=llm, prompt=prompt)
+llm_chain = LLMChain(llm=llm, prompt=prompt_with_history)
 
 tool_names = [tool.name for tool in tools]
 agent = LLMSingleActionAgent(
@@ -126,9 +129,12 @@ agent = LLMSingleActionAgent(
     allowed_tools=tool_names
 )
 
+memory = ConversationBufferWindowMemory(k=5)
+
 # Un Agent Executor pilla el agente y las tools y usa el agente para decidir que tool usar y en que orden.
 agent_executor = AgentExecutor.from_agent_and_tools(agent=agent,
                                                     tools=tools,
-                                                    verbose=True)
+                                                    verbose=True,
+                                                    memory=memory)
 
-agent_executor.run('¿Cual es el mejor remedio para la migraña?')
+agent_executor.run('¿Medicamentos para que enfermedad?')
