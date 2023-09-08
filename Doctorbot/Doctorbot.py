@@ -18,7 +18,7 @@ from langchain.prompts import StringPromptTemplate
 _ = load_dotenv(find_dotenv())
 openai.api_key = os.environ['OPENAI_API_KEY']
 
-#
+##################### CUSTOM AGENT #####################################
 # Bot Medico para resolver dudas sobre pacientes y sintomas.
 # Ejercicio para saber como crear un agente con memoria usando langchain.
 #
@@ -75,13 +75,13 @@ class CustomPromptTemplate(StringPromptTemplate):
         thoughts = ''
         for action, observation in intermediate_steps:
             thoughts += action.log
-            thoughts += f'\nObservation: {observation}\nThought: '
+            thoughts += f"\nObservation: {observation}\nThought: "
         # Set the argent_scratchpad variable to that value
         kwargs['agent_scratchpad'] = thoughts
         # Create a tools variable from the list of tools provided
-        kwargs['tools'] = '\n'.join([f'{tool.name}: {tool.description}' for tool in self.tools])
+        kwargs['tools'] = '\n'.join([f"{tool.name}: {tool.description}" for tool in self.tools])
         # Create a list of tool names for the tools provided
-        kwargs['tool_name'] = ', '.join([tool.name for tool in self.tools])
+        kwargs['tool_names'] = ', '.join([tool.name for tool in self.tools])
         return self.template.format(**kwargs)
 
 prompt = CustomPromptTemplate(
@@ -89,11 +89,11 @@ prompt = CustomPromptTemplate(
     tools=tools,
     # Omite las variables 'agents_scratchpad', 'tools' and 'tools_name' porque son generadas dinamicamente en la función superior.
     # Incluir las variables 'input' e 'intermediate_steps' porque son necesarias.
-    input_variable=['input', ' intermediate_steps']
+    input_variables=['input', 'intermediate_steps']
 )
 
 class CustomOutputParser(AgentOutputParser):
-    def pase(self, llm_output: str) -> Union[AgentAction, AgentFinish]:
+    def parse(self, llm_output: str) -> Union[AgentAction, AgentFinish]:
         # Check si ha terminado el agente
         if 'Final Answer: ' in llm_output:
             return AgentFinish(
@@ -101,20 +101,34 @@ class CustomOutputParser(AgentOutputParser):
                 return_values={'output': llm_output.split('Final Answer:')[-1].strip()},
                 log=llm_output,
             )
-        regex = r'Action\s*\d*\s*:(.*?)\nAction\s*\d*\s*Input\s*\d*\s*:[\s]*(.*)'
+        regex = r"Action\s*\d*\s*:(.*?)\nAction\s*\d*\s*Input\s*\d*\s*:[\s]*(.*)"
         match = re.search(regex, llm_output, re.DOTALL)
         if not match:
-            raise ValueError(f"Could not parse LLM output: '{llm_output}'")
+            raise ValueError(f"Could not parse LLM output: ´{llm_output}´")
         action = match.group(1).strip()
         action_input = match.group(2)
 
         # Return de action y action_input
         return AgentAction(tool=action, tool_input=action_input.strip(" ").strip('"'), log=llm_output)
-output_parser = CustomOutputParser
+
+output_parser = CustomOutputParser()
 
 # Setup agent
+llm = OpenAI(temperature=0)
+# LLMChain consiste en LLM y un prompt
+llm_chain = LLMChain(llm=llm, prompt=prompt)
 
+tool_names = [tool.name for tool in tools]
+agent = LLMSingleActionAgent(
+    llm_chain=llm_chain,
+    output_parser=output_parser,
+    stop=["\nObservation"],
+    allowed_tools=tool_names
+)
 
-obj = search.run('sire:webmd.com ¿Cuales son los principales efectos de un ataque epileptico?')
+# Un Agent Executor pilla el agente y las tools y usa el agente para decidir que tool usar y en que orden.
+agent_executor = AgentExecutor.from_agent_and_tools(agent=agent,
+                                                    tools=tools,
+                                                    verbose=True)
 
-print(obj)
+agent_executor.run('¿Cual es el mejor remedio para la migraña?')
