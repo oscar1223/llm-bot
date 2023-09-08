@@ -26,6 +26,10 @@ Debes leer el script sql y traducirlo a lenguaje python para que ambos scripts r
 Despues debes escribir ese codigo python en el fichero de esta ruta {py_ruta}.
 '''
 
+prompt2 = f'''
+Necesito transcribir el script sql de esta ruta {sql_ruta} a lenguaje python, y que lo escribas en esta ruta {py_ruta}.
+'''
+
 #Creamos agente.
 '''
 agent_executor = create_python_agent(
@@ -43,10 +47,6 @@ agent_executor = create_python_agent(
     agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
 )
 
-
-
-response = agent_executor.run(prompt)
-
-
+response = agent_executor.run(prompt2)
 
 print(response)

@@ -7,6 +7,8 @@ from langchain.chains.question_answering import load_qa_chain
 from langchain.llms import OpenAI
 import openai
 import os
+from langchain.memory import ConversationBufferMemory
+
 
 # read local .env file
 _ = load_dotenv(find_dotenv())
@@ -35,9 +37,11 @@ texts = text_splitter.split_text(raw_text)
 embeddings = OpenAIEmbeddings()
 
 docsearch = FAISS.from_texts(texts, embeddings)
-chain = load_qa_chain(OpenAI(), chain_type='stuff')
+chain = load_qa_chain(OpenAI(),
+                      chain_type='stuff'
+                      )
 
-query = '¿Por qué Napoleon murio en el exilio?'
+query = '¿Cuales fueron las tres principales claves para el ascenso de Napoleón?, dime las páginas de donde has sacado esa información'
 docs = docsearch.similarity_search(query)
 respuesta = chain.run(input_documents=docs, question=query)
 
