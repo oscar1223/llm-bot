@@ -50,7 +50,7 @@ Always say "thanks for asking!" at the end of the answer.
 Context is delimited by triple dollar signs.
 
 $$${context}$$$
-Question: {query}
+Question: {question}
 Helpful Answer:
 '''
 
@@ -64,7 +64,7 @@ all_splits = pdf_splitter.split_documents(data)
 
 vectorstore = Chroma.from_documents(documents=all_splits, embedding=OpenAIEmbeddings())
 
-query = '¿Donde nacio Napoleon?'
+question = 'Haz un resumen del ascenso de Napoleon al poder'
 
 llm = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0)
 
@@ -73,7 +73,7 @@ qa_chain = RetrievalQA.from_chain_type(
     retriever=vectorstore.as_retriever(),
     chain_type_kwargs={'prompt': QA_CHAIN_PROMPT})
 
-result = qa_chain({'query':query})
+result = qa_chain({'query':question})
 print(result)
 
 
