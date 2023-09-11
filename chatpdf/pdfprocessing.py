@@ -31,17 +31,18 @@ text_splitter =CharacterTextSplitter(
     chunk_overlap=200,
     length_function=len,
 )
+
 texts = text_splitter.split_text(raw_text)
 
 # Descargamos las incrustaciones(embeddings) desde OpenAI
 embeddings = OpenAIEmbeddings()
 
 docsearch = FAISS.from_texts(texts, embeddings)
-chain = load_qa_chain(OpenAI(),
+chain = load_qa_chain(OpenAI(temperature=0),
                       chain_type='stuff'
                       )
 
-query = '¿Cuales fueron las tres principales claves para el ascenso de Napoleón?, dime las páginas de donde has sacado esa información'
+query = '¿Donde nacio Napoleon?, dime las páginas de donde has sacado esa información'
 docs = docsearch.similarity_search(query)
 respuesta = chain.run(input_documents=docs, question=query)
 

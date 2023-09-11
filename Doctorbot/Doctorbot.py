@@ -122,6 +122,7 @@ llm = OpenAI(temperature=0)
 llm_chain = LLMChain(llm=llm, prompt=prompt_with_history)
 
 tool_names = [tool.name for tool in tools]
+
 agent = LLMSingleActionAgent(
     llm_chain=llm_chain,
     output_parser=output_parser,
@@ -137,4 +138,4 @@ agent_executor = AgentExecutor.from_agent_and_tools(agent=agent,
                                                     verbose=True,
                                                     memory=memory)
 
-agent_executor.run('¿Medicamentos para que enfermedad?')
+agent_executor.run('¿Cuales son los sintomas de la epilepsia?')
