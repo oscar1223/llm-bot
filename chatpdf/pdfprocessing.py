@@ -1,17 +1,15 @@
-from langchain import OpenAI
-from langchain.chains import RetrievalQA
-from langchain.chains.question_answering import load_qa_chain
+from langchain.chains import RetrievalQA, ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import PyPDFLoader
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import FAISS, Chroma, Pinecone
+from langchain.vectorstores import Chroma
 from dotenv import load_dotenv, find_dotenv
 from langchain.prompts import PromptTemplate
-import streamlit as st, pinecone
+from langchain.memory import ConversationBufferMemory
 import openai
 import os
-import pinecone
+
 from langchain.vectorstores.base import VectorStoreRetriever
 
 # read local .env file
@@ -44,6 +42,12 @@ pdf_splitter = RecursiveCharacterTextSplitter(
 )
 all_splits = pdf_splitter.split_documents(data)
 
+# Añadimos memoria.
+memory = ConversationBufferMemory(
+    memory_key='chat_history',
+    return_messages=True
+)
+
 persist_directory = './pdfs/chroma/'
 
 vectorstore = Chroma.from_documents(documents=data,
@@ -51,8 +55,6 @@ vectorstore = Chroma.from_documents(documents=data,
                                     persist_directory=persist_directory)
 
 retriever = VectorStoreRetriever(vectorstore=vectorstore)
-
-#faiss_index = FAISS.from_documents(data, OpenAIEmbeddings())
 
 embedding = OpenAIEmbeddings()
 
@@ -67,9 +69,16 @@ llm = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0, verbose=True)
 qa_chain = RetrievalQA.from_chain_type(llm,
                                        retriever=retriever,
                                        chain_type='stuff',
+                                       return_source_documents=True,
                                        chain_type_kwargs={'prompt': QA_CHAIN_PROMPT},
                                        verbose=True
                                        )
+
+qa = ConversationalRetrievalChain.from_llm(
+    llm,
+    retriever=retriever,
+    memory=memory
+)
 
 
 result = qa_chain({'query': question, 'input_documents': docs, 'return_only_outputs': False, 'verbose': True})
