@@ -18,7 +18,7 @@ _ = load_dotenv(find_dotenv())
 openai.api_key = os.environ['OPENAI_API_KEY']
 
 #Leemos el documento
-template='''
+template = '''
 Use the following pieces of context to answer the question at the end. 
 If you don't know the answer, just say that you don't know, don't try to make up an answer. 
 Use 150 word maximum to answer.
@@ -27,14 +27,13 @@ Always say "thanks for asking!" at the end of the answer.
 Context is delimited by triple dollar signs.
 
 $$${context}$$$
-Chat History:
-{chat_history}
-Human: {human_input}
+
 Question: {question}
 Helpful Answer:
 '''
 
 QA_CHAIN_PROMPT = PromptTemplate.from_template(template)
+
 '''
 loader = PyPDFLoader('./pdfs/napoleon.pdf')
 data = loader.load()
@@ -61,10 +60,10 @@ vectorstore = Chroma.from_documents(documents=data,
 
 retriever = VectorStoreRetriever(vectorstore=vectorstore)
 
-embedding = OpenAIEmbeddings()
 
-question = '¿A que población pertenecia Napoleón?'
-docs = vectorstore.similarity_search(query=question, k=5, include_metadata=True)
+question = '¿Donde murio Napoleon?'
+
+docs = vectorstore.similarity_search(query=question, k=3, include_metadata=True)
 #Mostramos los metadatos de los chucnks selecionados.
 for doc in docs:
     print(doc)
@@ -74,7 +73,6 @@ llm = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0, verbose=True)
 qa_chain = RetrievalQA.from_chain_type(llm,
                                        retriever=retriever,
                                        chain_type='stuff',
-                                       return_source_documents=True,
                                        chain_type_kwargs={'prompt': QA_CHAIN_PROMPT},
                                        verbose=True
                                        )
@@ -86,12 +84,13 @@ qa = ConversationalRetrievalChain.from_llm(
 )
 
 
-result = qa_chain({'query': question, 'input_documents': docs, 'return_only_outputs': False, 'verbose': True})
+result = qa_chain({'query': question, 'return_only_outputs': False, 'verbose': True})
 print(result)
 '''
 
+
 #Encapsulamos el proceso en una función para que te devuelva la CHAIN.
-def load_db(file, chain_type, k):
+def load_db(file, chain_type):
     #Cargamos documento
     loader = PyPDFLoader(file)
     data = loader.load()
@@ -110,23 +109,33 @@ def load_db(file, chain_type, k):
                                         embedding=OpenAIEmbeddings(),
                                         persist_directory=persist_directory)
 
-    retriever = vectorstore.as_retriever(search_type='similarity', search_kwargs={'k': k}, include_metadata=True)
+    retriever = VectorStoreRetriever(vectorstore=vectorstore)
 
-    memory = ConversationBufferWindowMemory(memory_key="chat_history", return_messages=True, k=2)
+    #memory = ConversationBufferWindowMemory(memory_key="chat_history", return_messages=True)
 
     llm = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0)
-
+    '''
     #Chain to form
     qa = ConversationalRetrievalChain.from_llm(
         llm,
         retriever=retriever,
         chain_type=chain_type,
         memory=memory,
+        input_documents=docs,
         return_source_documents=True,
-        condense_question_prompt=QA_CHAIN_PROMPT
+        condense_question_prompt=QA_CHAIN_PROMPT,
+        verbose=True
     )
+    '''
+    qa_chain = RetrievalQA.from_chain_type(llm,
+                                           retriever=retriever,
+                                           chain_type='stuff',
+                                           #memory=memory,
+                                           chain_type_kwargs={'prompt': QA_CHAIN_PROMPT},
+                                           verbose=True
+                                           )
 
-    return qa
+    return qa_chain({'input_documents': docs})
 
 
 
