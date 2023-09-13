@@ -29,7 +29,7 @@ $$${context}$$$
 Question: {question}
 Helpful Answer:
 '''
-
+#prueba git
 QA_CHAIN_PROMPT = PromptTemplate.from_template(template)
 
 loader = PyPDFLoader('./pdfs/napoleon.pdf')
@@ -40,6 +40,7 @@ pdf_splitter = RecursiveCharacterTextSplitter(
     chunk_overlap=150,
     separators=["\n\n", "\n", "(?<=\. )", " ", ""]
 )
+
 all_splits = pdf_splitter.split_documents(data)
 
 # Añadimos memoria.
