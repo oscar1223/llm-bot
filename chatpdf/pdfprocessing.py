@@ -1,4 +1,5 @@
 from langchain.chains import RetrievalQA, ConversationalRetrievalChain
+from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import PyPDFLoader
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -6,7 +7,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from dotenv import load_dotenv, find_dotenv
 from langchain.prompts import PromptTemplate
-from langchain.memory import ConversationBufferMemory
+from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory
 import openai
 import os
 
@@ -26,12 +27,15 @@ Always say "thanks for asking!" at the end of the answer.
 Context is delimited by triple dollar signs.
 
 $$${context}$$$
+Chat History:
+{chat_history}
+Human: {human_input}
 Question: {question}
 Helpful Answer:
 '''
-#prueba git
-QA_CHAIN_PROMPT = PromptTemplate.from_template(template)
 
+QA_CHAIN_PROMPT = PromptTemplate.from_template(template)
+'''
 loader = PyPDFLoader('./pdfs/napoleon.pdf')
 data = loader.load()
 
@@ -84,6 +88,45 @@ qa = ConversationalRetrievalChain.from_llm(
 
 result = qa_chain({'query': question, 'input_documents': docs, 'return_only_outputs': False, 'verbose': True})
 print(result)
+'''
+
+#Encapsulamos el proceso en una función para que te devuelva la CHAIN.
+def load_db(file, chain_type, k):
+    #Cargamos documento
+    loader = PyPDFLoader(file)
+    data = loader.load()
+
+    pdf_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1500,
+        chunk_overlap=150,
+        separators=["\n\n", "\n", "(?<=\. )", " ", ""]
+    )
+
+    docs = pdf_splitter.split_documents(data)
+
+    persist_directory = './pdfs/chroma/'
+
+    vectorstore = Chroma.from_documents(documents=docs,
+                                        embedding=OpenAIEmbeddings(),
+                                        persist_directory=persist_directory)
+
+    retriever = vectorstore.as_retriever(search_type='similarity', search_kwargs={'k': k}, include_metadata=True)
+
+    memory = ConversationBufferWindowMemory(memory_key="chat_history", return_messages=True, k=2)
+
+    llm = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0)
+
+    #Chain to form
+    qa = ConversationalRetrievalChain.from_llm(
+        llm,
+        retriever=retriever,
+        chain_type=chain_type,
+        memory=memory,
+        return_source_documents=True,
+        condense_question_prompt=QA_CHAIN_PROMPT
+    )
+
+    return qa
 
 
 
