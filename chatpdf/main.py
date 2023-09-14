@@ -111,6 +111,7 @@ if __name__ == '__main__':
             print('Algo ha fallado')
 
 '''
+Example of function
 def convchain(self, query):
     if not query:
         return pn.WidgetBox(pn.Row('User:', pn.pane.Markdown("", width=600)), scroll=True)
@@ -125,5 +126,4 @@ def convchain(self, query):
     ])
     inp.value = ''  #clears loading indicator when cleared
     return pn.WidgetBox(*self.panels,scroll=True)
-
 '''
