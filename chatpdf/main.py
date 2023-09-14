@@ -19,7 +19,7 @@ Use the following pieces of context to answer the question at the end.
 If you don't know the answer, just say that you don't know, don't try to make up an answer. 
 Use 150 word maximum to answer.
 Always include the number of the page from which you got the information.
-When making a summary, always add the page number where it begins and the page number where it ends.
+When making a summary, always add the pages from which you got the information.
 Always say "thanks for asking!" at the end of the answer.
 Always response in Spanish.
 Context is delimited by triple dollar signs.
