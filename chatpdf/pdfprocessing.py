@@ -1,3 +1,4 @@
+from langchain import FAISS
 from langchain.chains import RetrievalQA, ConversationalRetrievalChain
 from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 from langchain.chat_models import ChatOpenAI
@@ -57,11 +58,15 @@ vectorstore = Chroma.from_documents(documents=data,
                                     embedding=OpenAIEmbeddings(),
                                     persist_directory=persist_directory)
 
-#retriever = VectorStoreRetriever(vectorstore=vectorstore)
+vectorstore2 = FAISS.from_documents(documents=data,
+                                    embedding=OpenAIEmbeddings()
+                                    )
 
-question = '¿Dónde pasó Napoleon sus últimos día y murió?'
 
-docs = vectorstore.as_retriever(search_type='similarity', search_kwargs={'k': 4}, include_metadata=True)
+
+question = '¿Podrías resumirme el capiturlo Las aventuras española y rusa, y decirme en que pagina empieza y en que página acaba?'
+
+docs = vectorstore2.as_retriever(search_type='similarity', search_kwargs={'k': 4}, include_metadata=True)
 
 # Mostramos los metadatos de los chucnks selecionados.
 for doc in docs:
