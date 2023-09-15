@@ -13,7 +13,7 @@
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="f373820a-a3da-4c57-b0a9-df50cb4a886f">
-      <console name="conectmusic" type="STANDARD" schema="" session="Main"><![CDATA[Select * FROM Artist;]]></console>
+      <console name="conectmusic" type="STANDARD" schema="main" session="Main"><![CDATA[Select * FROM Employee;]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseEditorStateManager">
@@ -65,7 +65,7 @@
           <tns-folder value="" />
           <tns-profile value="" />
           <files>
-            <file path="C:\Users\oarauz\musicdb" schema="main" />
+            <file path="$USER_HOME$/musicdb" schema="main" />
           </files>
           <type value="NONE" />
           <user value="" />
