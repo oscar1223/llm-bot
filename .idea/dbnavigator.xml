@@ -13,7 +13,7 @@
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="f373820a-a3da-4c57-b0a9-df50cb4a886f">
-      <console name="conectmusic" type="STANDARD" schema="" session="Main"><![CDATA[Select * FROM]]></console>
+      <console name="conectmusic" type="STANDARD" schema="" session="Main"><![CDATA[Select * FROM Artist;]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseEditorStateManager">
