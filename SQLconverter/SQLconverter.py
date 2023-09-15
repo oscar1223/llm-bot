@@ -2,21 +2,17 @@ from dotenv import load_dotenv, find_dotenv
 from langchain import OpenAI
 from langchain.agents import AgentType
 from langchain.agents.agent_toolkits import create_python_agent
-from langchain.chat_models import ChatOpenAI
 from langchain.tools import PythonREPLTool
-from langchain.python import PythonREPL
-
 import openai
 import os
 
-from langchain.utilities import PythonREPL
 
 # read local .env file
 _ = load_dotenv(find_dotenv())
 openai.api_key = os.environ['OPENAI_API_KEY']
 
 #Definimos las rutas de carga y descarga.
-sql_ruta = ('./scripts-sql/procedure1.sql')
+sql_ruta = ('./database/procedure1.sql')
 py_ruta = ('./py-scripts/procedure1.py')
 
 #Preparamos un buen prompt
@@ -40,6 +36,7 @@ agent_executor = create_python_agent(
     agent_executor_kwargs={"handle_parsing_errors": True},
 )
 '''
+
 agent_executor = create_python_agent(
     llm=OpenAI(temperature=0, max_tokens=1000),
     tool=PythonREPLTool(),
