@@ -13,7 +13,8 @@ _ = load_dotenv(find_dotenv())
 openai.api_key = os.environ['OPENAI_API_KEY']
 
 # Langchain to Database connection
-llm_db = SQLDatabase.from_uri('C:/Users/oarauz/musicdb.db')
+ruta = 'sqlite:///C:\\Users\\oarauz\\musicdb.db'
+llm_db = SQLDatabase.from_uri(ruta)
 
 toolkit = SQLDatabaseToolkit(db=llm_db, llm=OpenAI(temperature=0))
 
