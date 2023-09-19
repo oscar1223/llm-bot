@@ -51,7 +51,7 @@
       <connection id="f373820a-a3da-4c57-b0a9-df50cb4a886f" active="true" signed="true">
         <database>
           <name value="conectmusic" />
-          <description value="Musoc conection" />
+          <description value="Music conection" />
           <database-type value="SQLITE" />
           <config-type value="BASIC" />
           <database-version value="3.41" />

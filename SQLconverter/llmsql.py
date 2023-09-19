@@ -13,7 +13,7 @@ _ = load_dotenv(find_dotenv())
 openai.api_key = os.environ['OPENAI_API_KEY']
 
 # Langchain to Database connection
-ruta = 'sqlite:///C:\\Users\\oarauz\\musicdb.db'
+ruta = 'sqlite:///C:\\Users\\oarauz\\musicdb'
 llm_db = SQLDatabase.from_uri(ruta)
 
 toolkit = SQLDatabaseToolkit(db=llm_db, llm=OpenAI(temperature=0))
@@ -26,4 +26,4 @@ agent_executor = create_sql_agent(
     agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION
 )
 
-agent_executor.run('Muestrame todos los registros de la tabla Album')
+agent_executor.run('En la tabla Employee a Andrew Adams cambiale el telefono por +34 676767676')
