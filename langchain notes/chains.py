@@ -13,7 +13,7 @@ openai.api_key = os.environ['OPENAI_API_KEY']
 
 # Simple exercises to understand how Sequentials chains and  Router chains works
 
-df = pd.read_csv('spotify-2023.csv')
+df = pd.read_csv('spotify-2023.csv', sep=";", encoding='latin-1')
 songs = df.head()
 
 '''Sequential Chain'''
@@ -54,7 +54,7 @@ chain_four = LLMChain(llm=llm, prompt=second_prompt, output_key='listed_am')
 overall_chain = SequentialChain(
     chains=[chain_one, chain_two, chain_three, chain_four],
     input_variables=["songs"],
-    output_variables=["song", "artist","least_song", "liasted_am"],
+    output_variables=["song", "artist","least_song", "listed_am"],
     verbose=True
 )
 
