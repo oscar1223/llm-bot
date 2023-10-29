@@ -17,7 +17,7 @@ df = pd.read_csv('spotify-2023.csv', sep=";", encoding='latin-1')
 songs = df.head()
 
 '''Sequential Chain'''
-llm = ChatOpenAI(temperature=0.9, model='gpt-3.5-turbo')
+llm = ChatOpenAI(temperature=0.9, model='gpt-3.5-turbo-16k')
 
 # 1 Chain
 first_prompt = ChatPromptTemplate.from_template(
